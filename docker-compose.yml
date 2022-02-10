@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    environment:
+      - CALDAV_SERVER_URL=http://192.168.1.103:5232
+      - CALDAV_CALDENDAR=Work
+      - CREDENTIALS_USERNAME=ryan
+      - CREDENTIALS_PASSWORD=<passwd>
+    ports:
+      - "8000:3000"
