@@ -8,6 +8,8 @@ services:
       - CALDAV_CALDENDAR=Work
       - CREDENTIALS_USERNAME=ryan
       - CREDENTIALS_PASSWORD=<passwd>
+      # This MUST correspond with the timezone of the appointment / meetings (unless they are passed with a timezone format that JS date understands)
+      - TZ=Australia/Sydney
     ports:
       - "8003:3000"
     networks:
