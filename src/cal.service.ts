@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { createDAVClient, DAVCalendar, DAVClient, DAVObject } from 'tsdav';
-import { DbService } from "./db.service";
 import { addMinutes, isEqual } from "date-fns";
 import icalGen from "ical-generator";
 import { async as ical, CalendarComponent, VEvent } from "node-ical";
@@ -10,7 +9,7 @@ export interface Appointment {
 	id: string;
 	name: string;
 	time: Date;
-    duration: number;
+    duration: number; // in Hours
 	location: string;
 	isAccepted: boolean;
 }
@@ -47,7 +46,7 @@ export class CalService {
 
         this.calendars = await this.client.fetchCalendars();
 
-        console.log(this.calendars.map(it => it.displayName));
+        // console.log(this.calendars.map(it => it.displayName));
 
         const calIndex = this.calendars.findIndex(it => it.displayName == caldendarNameSetting);
         if (calIndex == -1) {
@@ -55,7 +54,10 @@ export class CalService {
             console.error("Failed to find caldendar", caldendarNameSetting, "in", this.configService.get<string>("CALDAV_SERVER_URL"));
             process.exit(-1);
         }
-        
+        else {
+            console.log("Using", this.calendars[calIndex].displayName, "calendar");
+        }
+
         this.caldendar = this.calendars[calIndex];
 
         // const calendarObjects = await this.client.fetchCalendarObjects({
