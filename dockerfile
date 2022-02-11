@@ -1,4 +1,4 @@
-FROM node:16-alpine as builder
+FROM node:lts-alpine as builder
 
 ENV NODE_ENV build
 
@@ -14,7 +14,7 @@ RUN npm run build \
 
 # ---
 
-FROM node:16-alpine
+FROM node:lts-alpine
 
 ENV NODE_ENV production
 
@@ -27,4 +27,4 @@ COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
 
 HEALTHCHECK CMD curl --fail http://localhost:3000/health || exit 1
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/main.js"]
