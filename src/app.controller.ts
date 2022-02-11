@@ -13,6 +13,10 @@ export class AppController {
 
   @Post()
   updateCal(@Body() body: Appointment[]) {
+    for (let i = 0; i < body.length; i++) {
+      const appt = body[i];
+      appt.time = new Date(appt.time);
+    }
     console.log("Recieved the following Appointments", body.map(it => [it.name, it.time]));
     this.calService.update(body)
   }

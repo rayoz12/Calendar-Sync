@@ -103,7 +103,7 @@ export class CalService {
             // console.log(events);
 
             if (events.length == 0 || events[0].data == undefined) {
-                console.log("Invalid Event Data");
+                // console.log("Invalid Event Data");
                 return undefined;
             }
             const remoteAppt = await this.appointmentFromiCalString(events[0].data);
@@ -137,7 +137,7 @@ export class CalService {
         for (let i = 0; i < appts.length; i++) {
             const appointment = appts[i];
 
-            appointment.time = new Date(appointment.time);
+            // appointment.time = new Date(appointment.time);
 
             const remoteEvent = await this.getEvent(appointment.id);
             // console.log("Remote Event", remoteEvent);
@@ -172,8 +172,6 @@ export class CalService {
             }
             else {
 
-                console.log("Creating new Event:", appointment.name);
-
                 // create the event
                 calGenCalendar.createEvent({
                     start: appointment.time,
@@ -192,7 +190,9 @@ export class CalService {
                     iCalString: calGenCalendar.toString()
                 });
 
-                console.log(calObj.status);
+                console.log("Created new Event:", appointment.name);
+
+                // console.log(calObj.status);
 
                 // Add it to the DB
             }
