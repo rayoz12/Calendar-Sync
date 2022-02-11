@@ -7,7 +7,7 @@ interface Appointment {
 	id: string;
 	name: string;
 	time: Date;
-  duration: number; // in Hours
+	duration: number; // in Hours
 	location: string;
 	isAccepted: boolean;
 }
