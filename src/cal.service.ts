@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { createDAVClient, DAVCalendar, DAVClient, DAVObject } from 'tsdav';
 import { addMinutes, isEqual } from "date-fns";
-import icalGen, { ICalCalendar } from "ical-generator";
+import icalGen, { ICalAlarmType, ICalCalendar } from "ical-generator";
 import { async as ical, CalendarComponent, VEvent } from "node-ical";
 import { ConfigService } from "@nestjs/config";
+
+const TZ = process.env.TZ || "Australia/Sydney";
 
 export interface Appointment {
 	id: string;
@@ -119,7 +121,9 @@ export class CalService {
     }
 
     getEventFromAppointment(appointment: Appointment): ICalCalendar {
-        const calGenCalendar = icalGen();
+        const calGenCalendar = icalGen({
+            timezone: TZ
+        });
         const event = calGenCalendar.createEvent({
             start: appointment.time,
             end: addMinutes(appointment.time, appointment.duration),
@@ -129,9 +133,11 @@ export class CalService {
             url: appointment.location.includes("http") ? appointment.location : undefined
         });
         event.createAlarm({
+            type: ICalAlarmType.display,
             triggerBefore: 10 * 60 // 10 Minutes
         });
         event.createAlarm({
+            type: ICalAlarmType.display,
             triggerBefore: 30 * 60 // 30 Minutes
         });
 
