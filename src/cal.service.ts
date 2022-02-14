@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { createDAVClient, DAVCalendar, DAVClient, DAVObject } from 'tsdav';
 import { addMinutes, isEqual } from "date-fns";
-import icalGen from "ical-generator";
+import icalGen, { ICalCalendar } from "ical-generator";
 import { async as ical, CalendarComponent, VEvent } from "node-ical";
 import { ConfigService } from "@nestjs/config";
 
@@ -118,6 +118,26 @@ export class CalService {
         
     }
 
+    getEventFromAppointment(appointment: Appointment): ICalCalendar {
+        const calGenCalendar = icalGen();
+        const event = calGenCalendar.createEvent({
+            start: appointment.time,
+            end: addMinutes(appointment.time, appointment.duration),
+            summary: appointment.name,
+            description: appointment.name,
+            location: appointment.location,
+            url: appointment.location.includes("http") ? appointment.location : undefined
+        });
+        event.createAlarm({
+            triggerBefore: 10 * 60 // 10 Minutes
+        });
+        event.createAlarm({
+            triggerBefore: 30 * 60 // 30 Minutes
+        });
+
+        return calGenCalendar;
+    }
+
     /**
      * This evaluates if the event has changed from the source to what's stored in caldav.
      * It evaluates:
@@ -142,24 +162,13 @@ export class CalService {
             const remoteEvent = await this.getEvent(appointment.id);
             // console.log("Remote Event", remoteEvent);
 
-            const calGenCalendar = icalGen({
-                timezone: "Australia/Sydney"
-            });
-
             // We need to check if this is a new event or an existing one
             if (remoteEvent) {
                 // This is an existing event and we need to compare to see if anything has changed.
                 if (this.hasEventChanged(appointment, remoteEvent)) {
                     // we need to update
                     console.log("Updating Event as it's changed:", appointment.name);
-                    calGenCalendar.createEvent({
-                        start: appointment.time,
-                        end: addMinutes(appointment.time, appointment.duration),
-                        summary: appointment.name,
-                        description: appointment.name,
-                        location: appointment.location,
-                        url: appointment.location.includes("http") ? appointment.location : undefined
-                    });
+                    const calGenCalendar = this.getEventFromAppointment(appointment);
                     const calObj = await this.client.createCalendarObject({
                         calendar: this.caldendar,
                         filename: `${appointment.id}.ics`,
@@ -173,14 +182,7 @@ export class CalService {
             else {
 
                 // create the event
-                calGenCalendar.createEvent({
-                    start: appointment.time,
-                    end: addMinutes(appointment.time, appointment.duration),
-                    summary: appointment.name,
-                    description: appointment.name,
-                    location: appointment.location,
-                    url: appointment.location.includes("http") ? appointment.location : undefined
-                });
+                const calGenCalendar = this.getEventFromAppointment(appointment);
 
                 // console.log(calGenCalendar.toString());
 
